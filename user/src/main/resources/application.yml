@@ -1,0 +1,17 @@
+# Server configuration
+server:
+  port: 8080
+  servlet:
+    session.timeout: 300
+# Spring Boot configuration
+spring:
+  session:
+    store-type: redis
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/bank
+    username: user_service
+    password: user0218
+  reids:
+    host: localhost
+    port: 6379

@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_PASSWORD: work0218
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  redis:
+    image: redis:6.0.8-alpine
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+    ports:
+      - 6379:6379
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+  rabbitmq:
+    image: rabbitmq:3.8.9-management-alpine
+    hostname: bank
+    volumes:
+      - type: volume
+        source: rabbitmq-data
+        target: /var/lib/rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+
+volumes:
+  postgres-data:
+  redis-data:
+  rabbitmq-data:
+

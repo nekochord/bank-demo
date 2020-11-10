@@ -1,0 +1,10 @@
+# Server configuration
+server:
+  port: 8090
+# Spring Boot configuration
+spring:
+  session:
+    store-type: redis
+  reids:
+    host: localhost
+    port: 6379

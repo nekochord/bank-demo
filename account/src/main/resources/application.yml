@@ -1,0 +1,27 @@
+spring:
+  cloud:
+    stream:
+      binders:
+        rabbit:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+      bindings:
+        dispatcher-in-0:
+          destination: account
+          binder: rabbit
+        supplier-out-0:
+          destination: account
+          binder: rabbit
+        consumer-in-0:
+          destination: AA
+          binder: rabbit
+      function:
+        definition: supplier;dispatcher;consumer;
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/bank
+    username: account_service
+    password: account0218
