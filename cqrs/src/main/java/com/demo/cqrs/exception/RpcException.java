@@ -1,13 +1,19 @@
 package com.demo.cqrs.exception;
 
 public class RpcException extends Exception {
-    private final int errorCode;
+    private final int code;
+    private final String reason;
 
-    public RpcException(int errorCode) {
-        this.errorCode = errorCode;
+    public RpcException(int code,String reason) {
+        this.code = code;
+        this.reason=reason;
     }
 
-    public int getErrorCode() {
-        return errorCode;
+    public int getCode() {
+        return code;
+    }
+
+    public String getReason() {
+        return reason;
     }
 }

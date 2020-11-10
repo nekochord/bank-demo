@@ -3,23 +3,47 @@ package com.demo.cqrs.rpc;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "_class")
-public abstract class Response extends Traceable {
+public class Response extends Traceable {
     /**
      * Mapping request id
      */
     protected String requestId;
 
-    protected String msg;
+    protected Boolean success = true;
 
-    public boolean isSuccess() {
-        return true;
+    protected Integer code;
+
+    protected String reason;
+
+    public String getRequestId() {
+        return requestId;
     }
 
-    public String getMsg() {
-        return msg;
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

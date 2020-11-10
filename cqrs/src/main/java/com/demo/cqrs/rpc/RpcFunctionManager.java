@@ -1,13 +1,16 @@
 package com.demo.cqrs.rpc;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
+import com.demo.cqrs.exception.RpcException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RpcFunctionManager {
@@ -30,22 +33,32 @@ public class RpcFunctionManager {
         RpcFunction<Request, Response> function = functionMap.get(request.getClass());
 
         if (function == null) {
-            Response errorResponse = new ErrorResponse("unsupported request type");
+            Response errorResponse = new Response();
+            errorResponse.setSuccess(false);
+            errorResponse.setReason("unsupported request type");
             return buildResponse(request, errorResponse);
         }
 
         try {
             Response response = function.handle(request);
             return buildResponse(request, response);
+        } catch (RpcException rpcException) {
+            Response errorResponse = new Response();
+            errorResponse.setSuccess(false);
+            errorResponse.setCode(rpcException.getCode());
+            errorResponse.setReason(rpcException.getReason());
+            return buildResponse(request, errorResponse);
         } catch (Exception e) {
-            Response errorResponse = new ErrorResponse(e.getMessage());
+            Response errorResponse = new Response();
+            errorResponse.setSuccess(false);
+            errorResponse.setReason(e.getMessage());
             return buildResponse(request, errorResponse);
         }
     }
 
     private static Message<Response> buildResponse(Request request, Response response) {
         return MessageBuilder.withPayload(response)
-                .setHeader(REPLY_DESTINATION_HEADER, request.getReplyTo())
-                .build();
+            .setHeader(REPLY_DESTINATION_HEADER, request.getReplyTo())
+            .build();
     }
 }
