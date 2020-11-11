@@ -27,4 +27,6 @@ public class App {
     public Function<Message<Request>, Message<Response>> dispatcher(ApplicationContext applicationContext) {
         return new RpcFunctionManager(applicationContext).rpc();
     }
+
+    
 }

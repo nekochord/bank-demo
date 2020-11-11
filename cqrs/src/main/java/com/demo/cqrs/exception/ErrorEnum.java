@@ -5,10 +5,6 @@ public interface ErrorEnum {
 
     public String getReason();
 
-    public default void raise() throws RpcException {
-        throw exception();
-    }
-
     public default RpcException exception() {
         return new RpcException(getCode(), getReason());
     }

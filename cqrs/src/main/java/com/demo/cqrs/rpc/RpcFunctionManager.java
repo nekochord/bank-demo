@@ -1,26 +1,35 @@
 package com.demo.cqrs.rpc;
 
+import com.demo.cqrs.exception.RpcException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.util.ClassUtils;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
-
-import com.demo.cqrs.exception.RpcException;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 public class RpcFunctionManager {
     private static final String REPLY_DESTINATION_HEADER = "spring.cloud.stream.sendto.destination";
-    private final Map<Class<?>, RpcFunction<Request, Response>> functionMap = new HashMap<>();
+    private final Map<Type, RpcFunction<Request, Response>> functionMap = new HashMap<>();
 
     public RpcFunctionManager(ApplicationContext applicationContext) {
         for (RpcFunction<Request, Response> function : applicationContext.getBeansOfType(RpcFunction.class).values()) {
-            log.info("initialize function: {}", function.getClass());
-            functionMap.put(function.type(), function);
+            Arrays.stream(ClassUtils.getUserClass(function).getGenericInterfaces())
+                    .filter(type -> type instanceof ParameterizedType)
+                    .map(type -> (ParameterizedType) type)
+                    .filter(type -> RpcFunction.class.equals(type.getRawType()))
+                    .findAny()
+                    .ifPresent(type -> {
+                        functionMap.put(type.getActualTypeArguments()[0], function);
+                        log.info("initialize RpcFunction: {}", function.getClass());
+                    });
         }
     }
 
@@ -58,7 +67,7 @@ public class RpcFunctionManager {
 
     private static Message<Response> buildResponse(Request request, Response response) {
         return MessageBuilder.withPayload(response)
-            .setHeader(REPLY_DESTINATION_HEADER, request.getReplyTo())
-            .build();
+                .setHeader(REPLY_DESTINATION_HEADER, request.getReplyTo())
+                .build();
     }
 }
