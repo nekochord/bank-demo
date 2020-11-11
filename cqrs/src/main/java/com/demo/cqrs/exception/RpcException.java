@@ -4,9 +4,9 @@ public class RpcException extends Exception {
     private final int code;
     private final String reason;
 
-    public RpcException(int code,String reason) {
+    public RpcException(int code, String reason) {
         this.code = code;
-        this.reason=reason;
+        this.reason = reason;
     }
 
     public int getCode() {

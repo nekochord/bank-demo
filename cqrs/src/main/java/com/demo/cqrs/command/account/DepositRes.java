@@ -3,7 +3,6 @@ package com.demo.cqrs.command.account;
 import com.demo.cqrs.data.AccountData;
 import com.demo.cqrs.exception.ErrorEnum;
 import com.demo.cqrs.rpc.Response;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

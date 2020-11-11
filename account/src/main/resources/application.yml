@@ -7,7 +7,7 @@ spring:
           environment:
             spring:
               rabbitmq:
-                host: 192.168.8.151
+                host: localhost
       bindings:
         dispatcher-in-0:
           destination: account
@@ -20,8 +20,10 @@ spring:
           binder: rabbit
       function:
         definition: supplier;dispatcher;consumer;
+  jpa:
+    show-sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://192.168.8.151:5430/bank
+    url: jdbc:postgresql://localhost:5432/bank
     username: account_service
     password: account0218

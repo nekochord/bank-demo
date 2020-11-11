@@ -1,11 +1,10 @@
 package com.demo.account;
 
-import java.math.BigDecimal;
-import java.util.LinkedList;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
+import com.demo.cqrs.command.account.TransferCmd;
+import com.demo.cqrs.rpc.Request;
+import com.demo.cqrs.rpc.Response;
+import com.demo.cqrs.rpc.RpcFunctionManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,11 +13,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.messaging.Message;
 
-import com.demo.cqrs.command.account.DepositCmd;
-import com.demo.cqrs.rpc.Request;
-import com.demo.cqrs.rpc.Response;
-import com.demo.cqrs.rpc.RpcFunctionManager;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.util.LinkedList;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @EnableJpaAuditing
 @SpringBootApplication
@@ -38,13 +37,13 @@ public class App {
     @Bean
     public Supplier<Request> supplier() {
         LinkedList<Request> queue = new LinkedList<>();
-        DepositCmd depositCmd = new DepositCmd();
-        depositCmd.setAccountId(2L);
-        depositCmd.setAmount(new BigDecimal(100));
-        depositCmd.setTrace("trace");
-        depositCmd.setReplyTo("result");
-        depositCmd.setId("id");
-        queue.push(depositCmd);
+        TransferCmd cmd = new TransferCmd();
+        cmd.setFromAccountId(14L);
+        cmd.setToAccountId(15L);
+        cmd.setAmount(new BigDecimal(100));
+        cmd.setReplyTo("result");
+        cmd.setTrace("trace");
+        queue.push(cmd);
         return queue::poll;
     }
 

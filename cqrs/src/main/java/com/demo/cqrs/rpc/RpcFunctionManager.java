@@ -7,16 +7,21 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.ClassUtils;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 @Slf4j
 public class RpcFunctionManager {
     private static final String REPLY_DESTINATION_HEADER = "spring.cloud.stream.sendto.destination";
+    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     private final Map<Type, RpcFunction<Request, Response>> functionMap = new HashMap<>();
 
     public RpcFunctionManager(ApplicationContext applicationContext) {
@@ -42,30 +47,39 @@ public class RpcFunctionManager {
         RpcFunction<Request, Response> function = functionMap.get(request.getClass());
 
         if (function == null) {
-            Response errorResponse = new Response();
-            errorResponse.setSuccess(false);
-            errorResponse.setReason("unsupported request type");
-            return buildResponse(request, errorResponse);
+            return buildErrorResponse(request, null, "unsupported request type");
+        }
+
+        Set<ConstraintViolation<Request>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            violations.forEach(violation ->
+                    sb.append("[path=").append(violation.getPropertyPath()).append(",")
+                            .append("error=").append(violation.getMessage()).append("]"));
+            return buildErrorResponse(request, null, sb.toString());
         }
 
         try {
             Response response = function.handle(request);
             return buildResponse(request, response);
         } catch (RpcException rpcException) {
-            Response errorResponse = new Response();
-            errorResponse.setSuccess(false);
-            errorResponse.setCode(rpcException.getCode());
-            errorResponse.setReason(rpcException.getReason());
-            return buildResponse(request, errorResponse);
+            return buildErrorResponse(request, rpcException.getCode(), rpcException.getReason());
         } catch (Exception e) {
-            Response errorResponse = new Response();
-            errorResponse.setSuccess(false);
-            errorResponse.setReason(e.getMessage());
-            return buildResponse(request, errorResponse);
+            return buildErrorResponse(request, null, e.getMessage());
         }
     }
 
+    private static Message<Response> buildErrorResponse(Request request, Integer code, String reason) {
+        Response errorResponse = new Response();
+        errorResponse.setSuccess(false);
+        errorResponse.setCode(code);
+        errorResponse.setReason(reason);
+        return buildResponse(request, errorResponse);
+    }
+
     private static Message<Response> buildResponse(Request request, Response response) {
+        response.setRequestId(request.getId());
+        response.setTrace(request.getTrace());
         return MessageBuilder.withPayload(response)
                 .setHeader(REPLY_DESTINATION_HEADER, request.getReplyTo())
                 .build();
