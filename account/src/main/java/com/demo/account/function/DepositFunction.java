@@ -50,7 +50,6 @@ public class DepositFunction implements RpcFunction<DepositCmd, DepositRes> {
         accountTransaction.setAccount(account);
         accountTransaction.setAmount(request.getAmount());
         accountTransaction.setComment("deposit");
-        accountTransaction.setTrace(request.getTrace());
         return accountTransaction;
     }
 }

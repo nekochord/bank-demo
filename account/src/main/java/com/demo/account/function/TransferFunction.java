@@ -56,9 +56,8 @@ public class TransferFunction implements RpcFunction<TransferCmd, TransferRes> {
         from.setBalance(from.getBalance().subtract(amount));
         to.setBalance(to.getBalance().add(amount));
 
-        String trace = request.getTrace();
-        accountTransactionRepository.save(newAccountTransaction(from, amount.negate(), "transfer out", trace));
-        accountTransactionRepository.save(newAccountTransaction(to, amount, "transfer in", trace));
+        accountTransactionRepository.save(newAccountTransaction(from, amount.negate(), request.getFromComment()));
+        accountTransactionRepository.save(newAccountTransaction(to, amount, request.getToComment()));
         return new TransferRes();
     }
 
@@ -72,13 +71,11 @@ public class TransferFunction implements RpcFunction<TransferCmd, TransferRes> {
 
     private static AccountTransaction newAccountTransaction(Account account,
                                                             BigDecimal amount,
-                                                            String comment,
-                                                            String trace) {
+                                                            String comment) {
         AccountTransaction accountTransaction = new AccountTransaction();
         accountTransaction.setAccount(account);
         accountTransaction.setAmount(amount);
         accountTransaction.setComment(comment);
-        accountTransaction.setTrace(trace);
         return accountTransaction;
     }
 }

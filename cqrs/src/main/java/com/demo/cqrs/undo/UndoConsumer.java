@@ -1,0 +1,8 @@
+package com.demo.cqrs.undo;
+
+public interface UndoConsumer<U extends Undo> {
+    /**
+     * Consume Undo
+     */
+    public void consume(U undo) throws Exception;
+}

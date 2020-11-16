@@ -1,9 +1,11 @@
 package com.demo.account;
 
-import com.demo.cqrs.command.account.TransferCmd;
+import com.demo.cqrs.command.account.CreateAccountCmd;
 import com.demo.cqrs.rpc.Request;
 import com.demo.cqrs.rpc.Response;
 import com.demo.cqrs.rpc.RpcFunctionManager;
+import com.demo.cqrs.rpc.Traceable;
+import com.demo.cqrs.undo.UndoCommand;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -13,8 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.messaging.Message;
 
-import java.math.BigDecimal;
 import java.util.LinkedList;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,15 +37,18 @@ public class App {
     }
 
     @Bean
-    public Supplier<Request> supplier() {
-        LinkedList<Request> queue = new LinkedList<>();
-        TransferCmd cmd = new TransferCmd();
-        cmd.setFromAccountId(14L);
-        cmd.setToAccountId(15L);
-        cmd.setAmount(new BigDecimal(100));
+    public Supplier<Traceable> supplier() {
+        LinkedList<Traceable> queue = new LinkedList<>();
+
+        UndoCommand undoCommand = new UndoCommand();
+        undoCommand.setRequestId("29e8cf50-0b27-46fe-abc8-577377f381c6");
+
+        CreateAccountCmd cmd = new CreateAccountCmd();
+        cmd.setId(UUID.randomUUID().toString());
+        cmd.setName("AAAG");
         cmd.setReplyTo("result");
         cmd.setTrace("trace");
-        queue.push(cmd);
+        queue.push(undoCommand);
         return queue::poll;
     }
 
