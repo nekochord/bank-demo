@@ -1,6 +1,6 @@
 package com.demo.cqrs.command.account;
 
-import com.demo.cqrs.command.Command;
+import com.demo.cqrs.rpc.Request;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class TransferCmd extends Command {
+public class TransferCmd extends Request {
     @NotNull
     private Long fromAccountId;
     @NotNull

@@ -1,9 +1,9 @@
 package com.demo.account;
 
+import com.demo.cqrs.command.CommandEndpoint;
 import com.demo.cqrs.command.account.CreateAccountCmd;
 import com.demo.cqrs.rpc.Request;
 import com.demo.cqrs.rpc.Response;
-import com.demo.cqrs.rpc.RpcFunctionManager;
 import com.demo.cqrs.rpc.Traceable;
 import com.demo.cqrs.undo.UndoCommand;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,8 +32,8 @@ public class App {
     private ApplicationContext applicationContext;
 
     @Bean
-    public Function<Message<Request>, Message<Response>> dispatcher(ApplicationContext applicationContext) {
-        return new RpcFunctionManager(applicationContext).rpc();
+    public Function<Message<Request>, Message<Response>> command(ApplicationContext applicationContext) {
+        return new CommandEndpoint(applicationContext).endpoint();
     }
 
     @Bean

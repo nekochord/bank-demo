@@ -12,7 +12,7 @@ public enum UndoLogStatus {
     /**
      * Already undone
      */
-    UNDO,
+    UNDONE,
     /**
      * Error and should not happen
      */

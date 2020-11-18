@@ -5,9 +5,9 @@ import com.demo.account.entity.Account;
 import com.demo.account.entity.UndoLog;
 import com.demo.account.repository.AccountRepository;
 import com.demo.account.undo.CreateAccountUndo;
+import com.demo.cqrs.command.CommandFunction;
 import com.demo.cqrs.command.account.CreateAccountCmd;
 import com.demo.cqrs.command.account.CreateAccountRes;
-import com.demo.cqrs.rpc.RpcFunction;
 import com.demo.cqrs.undo.UndoConsumer;
 import com.demo.cqrs.undo.UndoLogRepository;
 import com.demo.cqrs.undo.UndoLogStatus;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 @Component
-public class CreateAccountFunction implements RpcFunction<CreateAccountCmd, CreateAccountRes>,
+public class CreateAccountFunction implements CommandFunction<CreateAccountCmd, CreateAccountRes>,
         UndoConsumer<CreateAccountUndo> {
     @Autowired
     private AccountRepository accountRepository;
@@ -27,7 +27,7 @@ public class CreateAccountFunction implements RpcFunction<CreateAccountCmd, Crea
 
     @Override
     @Transactional
-    public CreateAccountRes handle(CreateAccountCmd request) {
+    public CreateAccountRes execute(CreateAccountCmd request) {
         Account account = new Account();
         account.setName(request.getName());
         account.setBalance(BigDecimal.ZERO);

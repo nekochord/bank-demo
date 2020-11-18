@@ -10,7 +10,7 @@ public interface UndoLogRepository {
     /**
      * Acquire UndoLog, must implement this method atomically
      */
-    public Optional<AbstractUndoLog> acquireFreeAndSetToLocked(String requestId);
+    Optional<AbstractUndoLog> acquireFreeAndSetToLocked(String requestId);
 
-    public void save(AbstractUndoLog abstractUndoLog);
+    void save(AbstractUndoLog abstractUndoLog);
 }

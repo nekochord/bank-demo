@@ -1,10 +1,8 @@
 package com.demo.cqrs.undo;
 
-import com.demo.cqrs.rpc.Traceable;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.demo.cqrs.rpc.Request;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "_class")
-public class UndoCommand extends Traceable {
+public class UndoCommand extends Request {
     protected String requestId;
 
     public String getRequestId() {

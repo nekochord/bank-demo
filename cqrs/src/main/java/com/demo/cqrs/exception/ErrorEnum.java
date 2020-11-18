@@ -1,11 +1,11 @@
 package com.demo.cqrs.exception;
 
 public interface ErrorEnum {
-    public int getCode();
+    int getCode();
 
-    public String getReason();
+    String getReason();
 
-    public default RpcException exception() {
+    default RpcException exception() {
         return new RpcException(getCode(), getReason());
     }
 }

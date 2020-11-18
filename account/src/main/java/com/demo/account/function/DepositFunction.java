@@ -5,10 +5,10 @@ import com.demo.account.entity.Account;
 import com.demo.account.entity.AccountTransaction;
 import com.demo.account.repository.AccountRepository;
 import com.demo.account.repository.AccountTransactionRepository;
+import com.demo.cqrs.command.CommandFunction;
 import com.demo.cqrs.command.account.DepositCmd;
 import com.demo.cqrs.command.account.DepositRes;
 import com.demo.cqrs.exception.RpcException;
-import com.demo.cqrs.rpc.RpcFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 @Component
-public class DepositFunction implements RpcFunction<DepositCmd, DepositRes> {
+public class DepositFunction implements CommandFunction<DepositCmd, DepositRes> {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -30,7 +30,7 @@ public class DepositFunction implements RpcFunction<DepositCmd, DepositRes> {
 
     @Override
     @Transactional(rollbackFor = RpcException.class)
-    public DepositRes handle(@Validated DepositCmd request) throws RpcException {
+    public DepositRes execute(@Validated DepositCmd request) throws RpcException {
         Account account = entityManager.find(Account.class, request.getAccountId(), LockModeType.PESSIMISTIC_WRITE);
         if (account == null) {
             throw DepositRes.Code.ACCOUNT_NOT_FOUND.exception();

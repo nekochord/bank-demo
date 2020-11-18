@@ -4,10 +4,10 @@ import com.demo.account.entity.Account;
 import com.demo.account.entity.AccountTransaction;
 import com.demo.account.repository.AccountRepository;
 import com.demo.account.repository.AccountTransactionRepository;
+import com.demo.cqrs.command.CommandFunction;
 import com.demo.cqrs.command.account.TransferCmd;
 import com.demo.cqrs.command.account.TransferRes;
 import com.demo.cqrs.exception.RpcException;
-import com.demo.cqrs.rpc.RpcFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Component
-public class TransferFunction implements RpcFunction<TransferCmd, TransferRes> {
+public class TransferFunction implements CommandFunction<TransferCmd, TransferRes> {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -34,7 +34,7 @@ public class TransferFunction implements RpcFunction<TransferCmd, TransferRes> {
 
     @Override
     @Transactional(rollbackFor = RpcException.class)
-    public TransferRes handle(@Validated TransferCmd request) throws RpcException {
+    public TransferRes execute(@Validated TransferCmd request) throws RpcException {
         List<Account> accounts = findByIdInWithLock(request.getFromAccountId(), request.getToAccountId());
 
         Account from = null;
