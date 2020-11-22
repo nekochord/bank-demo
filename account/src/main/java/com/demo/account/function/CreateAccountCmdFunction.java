@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 @Component
-public class CreateAccountFunction implements CommandFunction<CreateAccountCmd, CreateAccountRes>,
+public class CreateAccountCmdFunction implements CommandFunction<CreateAccountCmd, CreateAccountRes>,
         UndoConsumer<CreateAccountUndo> {
     @Autowired
     private AccountRepository accountRepository;
@@ -52,7 +52,6 @@ public class CreateAccountFunction implements CommandFunction<CreateAccountCmd, 
     }
 
     @Override
-    @Transactional
     public void consume(CreateAccountUndo undo) throws Exception {
         Long accountId = undo.getAccountId();
         accountRepository.deleteById(accountId);

@@ -2,7 +2,7 @@ package com.demo.cqrs.undo;
 
 import com.demo.cqrs.rpc.Request;
 
-public class UndoCommand extends Request {
+public final class UndoCommand extends Request {
     protected String requestId;
 
     public String getRequestId() {

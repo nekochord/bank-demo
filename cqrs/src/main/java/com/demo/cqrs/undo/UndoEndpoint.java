@@ -1,11 +1,17 @@
 package com.demo.cqrs.undo;
 
+import com.demo.cqrs.exception.RpcException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.messaging.Message;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.ClassUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +19,16 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @Slf4j
-public class UndoConsumerEndpoint {
+public class UndoEndpoint {
     private final Map<Type, UndoConsumer<Undo>> consumerMap = new HashMap<>();
     private final UndoLogRepository undoLogRepository;
+    private final PlatformTransactionManager transactionManager;
 
-    public UndoConsumerEndpoint(UndoLogRepository undoLogRepository,
-                                ApplicationContext applicationContext) {
+    public UndoEndpoint(UndoLogRepository undoLogRepository,
+                        PlatformTransactionManager transactionManager,
+                        ApplicationContext applicationContext) {
         this.undoLogRepository = undoLogRepository;
+        this.transactionManager = transactionManager;
         for (UndoConsumer<Undo> consumer : applicationContext.getBeansOfType(UndoConsumer.class).values()) {
             Class<?>[] generics = GenericTypeResolver.resolveTypeArguments(ClassUtils.getUserClass(consumer), UndoConsumer.class);
 
@@ -30,7 +39,7 @@ public class UndoConsumerEndpoint {
         }
     }
 
-    public Consumer<Message<UndoCommand>> undo() {
+    public Consumer<Message<UndoCommand>> endpoint() {
         return this::call;
     }
 
@@ -50,21 +59,36 @@ public class UndoConsumerEndpoint {
 
         AbstractUndoLog undoLog = undoLogOptional.get();
         Undo undo = undoLog.getUndo();
-        UndoConsumer<Undo> consumer = consumerMap.get(undo.getClass());
 
-        if (consumer == null) {
-            log.error("Unsupported Undo type, requestId={} type={}", requestId, undo.getClass());
-            return;
-        }
-
+        TransactionStatus transaction = transactionManager.getTransaction(TransactionDefinition.withDefaults());
         try {
+            if (undo == null) {
+                throw new IllegalStateException("Undo is null for undoLog, requestId=" + requestId);
+            }
+
+            UndoConsumer<Undo> consumer = consumerMap.get(undo.getClass());
+
+            if (consumer == null) {
+                throw new IllegalStateException("Unsupported undo type, requestId=" + requestId);
+            }
+
             consumer.consume(undo);
             undoLog.setStatus(UndoLogStatus.UNDONE);
-        } catch (Exception e) {
-            log.error("Fail to undo, requestId={}", requestId, e);
+        } catch (IllegalStateException e) {
             undoLog.setStatus(UndoLogStatus.ERROR);
+            undoLog.setReason(e.getMessage());
+        } catch (RpcException e) {
+            undoLog.setStatus(UndoLogStatus.ERROR);
+            undoLog.setCode(e.getCode());
+            undoLog.setReason(e.getReason());
+        } catch (Exception e) {
+            undoLog.setStatus(UndoLogStatus.ERROR);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            e.printStackTrace(new PrintStream(outputStream, true));
+            undoLog.setReason(outputStream.toString());
+        } finally {
+            undoLogRepository.save(undoLog);
+            transactionManager.commit(transaction);
         }
-
-        undoLogRepository.save(undoLog);
     }
 }

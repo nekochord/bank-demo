@@ -21,6 +21,8 @@ public abstract class AbstractUndoLog {
     protected UndoLogStatus status;
     @Convert(converter = UndoAttributeConverter.class)
     protected Undo undo;
+    protected Integer code;
+    protected String reason;
 
     public String getRequestId() {
         return requestId;
@@ -60,5 +62,21 @@ public abstract class AbstractUndoLog {
 
     public void setUndo(Undo undo) {
         this.undo = undo;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

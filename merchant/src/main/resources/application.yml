@@ -10,16 +10,16 @@ spring:
                 host: localhost
       bindings:
         command-in-0:
-          destination: account-command
+          destination: merchant-command
           binder: rabbit
         query-in-0:
-          destination: account-query
+          destination: merchant-query
           binder: rabbit
         undo-in-0:
-          destination: account-undo
+          destination: merchant-undo
           binder: rabbit
         supplier-out-0:
-          destination: account-query
+          destination: merchant-query
           binder: rabbit
         consumer-in-0:
           destination: result
@@ -31,5 +31,5 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/bank
-    username: account_service
-    password: account0218
+    username: merchant_service
+    password: merchant0218

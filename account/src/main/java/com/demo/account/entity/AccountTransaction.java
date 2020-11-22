@@ -25,5 +25,4 @@ public class AccountTransaction {
     private Date createdDate;
     private BigDecimal amount;
     private String comment;
-    private String trace;
 }
