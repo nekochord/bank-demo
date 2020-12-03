@@ -3,16 +3,15 @@ package com.demo.cqrs.data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
-public class MerchantData {
+public class ProductData {
     private Long id;
-    private Long accountId;
-    private String name;
     private Date createdDate;
     private Date lastModifiedDate;
-    private List<ProductData> productList;
+    private String name;
+    private BigDecimal price;
 }

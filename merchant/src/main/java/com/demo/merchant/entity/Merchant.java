@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,4 +25,6 @@ public class Merchant {
     private Date lastModifiedDate;
     private String name;
     private Long accountId;
+    @OneToMany(mappedBy = "merchant", fetch = FetchType.LAZY)
+    private List<Product> productList;
 }
